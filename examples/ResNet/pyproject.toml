@@ -20,6 +20,7 @@ dependencies = [
 ]
 
 [tool.uv]
+required-version = ">=0.13"
 index-strategy = "unsafe-best-match"
 
 [tool.uv.sources]
