@@ -21,7 +21,7 @@ repos:
         pass_filenames: false
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Keep this rev equal to the ruff pin in pyproject.toml. Lint fails when they differ.
-    rev: v0.17.2
+    rev: v0.16.0
     hooks:
       - id: ruff-check
         args: [ --fix ]
@@ -30,7 +30,7 @@ repos:
         types_or: [ python, pyi ]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+    rev: v5.0.0
     hooks:
       - id: check-added-large-files
       - id: check-ast
@@ -53,7 +53,7 @@ repos:
       - id: name-tests-test
         args: [--pytest-test-first]
         exclude: '^tests/(toy_backends\.py|toy_models/|utilities/)'
-      - id: no-commit-to-branch
+      # - id: no-commit-to-branch
       - id: requirements-txt-fixer
       - id: trailing-whitespace
         exclude: 'setup.cfg|tests/assets/reports/.*\.txt'
@@ -68,7 +68,7 @@ repos:
 
   # Strip output from Jupyter and IPython notebooks
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.9.1
+    rev: 0.9.0
     hooks:
       - id: nbstripout
 

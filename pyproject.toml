@@ -56,7 +56,7 @@ xpu = [
     "fsspec>=2026.6.0", # sec
 ]
 test = [
-    "coverage>=7.17.0",
+    "coverage>=7.16.0",
     "datasets>=4.8.5,<6.0.0",
     "diffusers>=0.40.0,<1.0",
     "fsspec>=2026.6.0", # sec
@@ -79,7 +79,7 @@ doc = [
     "mkdocstrings-python >= 2.0.5",
     "properdocs >= 1.6.7",
     # Keep this pin equal to the ruff-pre-commit rev. Lint fails when they differ.
-    "ruff==0.17.2",
+    "ruff==0.16.0",
 ]
 dev = [
     "torch-tweak[test]",

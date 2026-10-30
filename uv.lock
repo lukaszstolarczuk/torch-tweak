@@ -1500,12 +1500,12 @@ wheels = [
 
 [[package]]
 name = "ruff"
-version = "0.17.2"
+version = "0.16.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/ae/58/690cf56da80c8f2c8bf12042b6017beac2c34fe961f65420bcb3fb7fac38/ruff-0.17.2.tar.gz", hash = "sha256:84d632402d14c23b488f941db23712d6736a013225162062d34558c3f3c780eb", size = 5333400, upload-time = "2026-10-22T18:38:00.181Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4d/94/1e5e4967626faf12fa56999cd6222dff6992ceb086ad7945756baf70c7a7/ruff-0.16.0.tar.gz", hash = "sha256:e460aafd5495ec89efaa6ced2e4a9a581116451e1c88b9d37ef497e0f8e93982", size = 4790557, upload-time = "2026-07-23T19:11:30.981Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c3/d8/59894cf630d2d86882457a2a6a0a1533410c5c805bfbac6f6eb4b5aef69d/ruff-0.17.2-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c60f93fec7142dba5b8f487f94bf2f6231dae24dc11e4c48648347c8b0720004", size = 10528000, upload-time = "2026-10-22T18:37:37.88Z" },
-    { url = "https://files.pythonhosted.org/packages/e4/5a/a7a640f47bb906ec8fa233ea84319d503e6dee02b59e3901bd312ebd1f9b/ruff-0.17.2-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:2d086be452eed686aa51271ecf2cbe5037956517cc6ee39a17b4489ac12f8bbe", size = 10790587, upload-time = "2026-10-22T18:37:50.191Z" },
+    { url = "https://files.pythonhosted.org/packages/91/66/6bd3cf90500653d55dc0ffc8507aa8300bd49d0214b2e8cb4d3fef2943ba/ruff-0.16.0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4f11a8d11010301d0a398a2fdef67691feca7294da6aef55e2150e8fa2cd520b", size = 11400718, upload-time = "2026-07-23T19:11:09.233Z" },
+    { url = "https://files.pythonhosted.org/packages/2e/23/9403c180ca1cb9b1f7335f5c3e5305c09d49ea5b345196682a36028bde4a/ruff-0.16.0-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:a5237a0bda500d30d81b8e07a6973a5cbc772864cbf746ae2f4e8a2e01c9f4ed", size = 11489751, upload-time = "2026-07-23T19:11:21.74Z" },
 ]
 
 [[package]]
@@ -1850,8 +1850,8 @@ xpu-stable = [
 
 [package.metadata]
 requires-dist = [
-    { name = "coverage", marker = "extra == 'dev'", specifier = ">=7.17.0" },
-    { name = "coverage", marker = "extra == 'test'", specifier = ">=7.17.0" },
+    { name = "coverage", marker = "extra == 'dev'", specifier = ">=7.16.0" },
+    { name = "coverage", marker = "extra == 'test'", specifier = ">=7.16.0" },
     { name = "datasets", marker = "extra == 'dev'", specifier = ">=4.8.5,<6.0.0" },
     { name = "datasets", marker = "extra == 'test'", specifier = ">=4.8.5,<6.0.0" },
     { name = "diffusers", marker = "extra == 'dev'", specifier = ">=0.40.0,<1.0" },
@@ -1888,8 +1888,8 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'test'", specifier = ">=9.1.1" },
     { name = "pytest-mock", marker = "extra == 'dev'" },
     { name = "pytest-mock", marker = "extra == 'test'" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = "==0.17.2" },
-    { name = "ruff", marker = "extra == 'doc'", specifier = "==0.17.2" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = "==0.16.0" },
+    { name = "ruff", marker = "extra == 'doc'", specifier = "==0.16.0" },
     { name = "sentencepiece", marker = "extra == 'dev'", specifier = ">=0.2.1" },
     { name = "sentencepiece", marker = "extra == 'test'", specifier = ">=0.2.1" },
     { name = "tabulate", specifier = ">=0.10.0" },
