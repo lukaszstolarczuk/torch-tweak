@@ -7,7 +7,8 @@ version: 2
 multi-ecosystem-groups:
   all:
     schedule:
-      interval: daily
+      # run at every hour
+      interval: hourly
     commit-message:
       prefix: "chore(deps)"
 
