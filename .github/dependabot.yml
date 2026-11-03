@@ -16,8 +16,6 @@ updates:
     directories:
       - "/"
       - "/examples/*/"
-    commit-message:
-      prefix: "chore(deps)"
     patterns:
       - "*"
     multi-ecosystem-group: "all"
