@@ -1,0 +1,154 @@
+# Runs all basic checks required for all PRs, then the tests (only when source
+# files were changed and the checkers passed).
+name: PR/push CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+  # Only the tests run on push; the checkers are PR/manual only.
+  push:
+    branches: [main]
+
+concurrency:
+  group: >-
+    ${{ github.workflow }}-${{ github.event_name }}-
+      ${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # Runs linter(s) and various pre-commit checks - for details see '.pre-commit-config.yaml'
+  pre-commit:
+    name: Pre-commit
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Torch Tweak repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.x"
+
+      - name: Install pre-commit
+        run: python3 -m pip install uv "pre-commit>=3.5.0"
+
+      - name: Run pre-commit
+        env:
+          # Branch guard; irrelevant when validating files in CI (e.g. push to main).
+          SKIP: no-commit-to-branch
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          pin=$(python3 -c 'import pathlib,re; m=re.search(r"ruff==([0-9.]+)", pathlib.Path("pyproject.toml").read_text()); print(m.group(1) if m else "")')
+          rev=$(python3 -c 'import pathlib,re; m=re.search(r"astral-sh/ruff-pre-commit.*?rev:\s*v(\S+)", pathlib.Path(".pre-commit-config.yaml").read_text(), re.S); print(m.group(1) if m else "")')
+          if [ -z "$pin" ] || [ "$pin" != "$rev" ]; then
+            echo "ruff pin '${pin:-missing}' != pre-commit rev '${rev:-missing}'"
+            exit 1
+          fi
+          if [ -n "$BASE_SHA" ]; then
+            pre-commit run --from-ref "$BASE_SHA" --to-ref "$HEAD_SHA" --show-diff-on-failure
+          else
+            pre-commit run --all-files --show-diff-on-failure
+          fi
+
+  # Enforces four rules:
+  #   Rule 1 - NVIDIA copyright lines in base files must be retained verbatim.
+  #   Rule 2 - Modified upstream files (had NVIDIA copyright) must add Intel
+  #            copyright and the "modified by Intel" notice.
+  #   Rule 3 - Brand-new .py files must carry the Intel header.
+  #   Rule 4 - The root LICENSE file must not be altered or deleted.
+  license-check:
+    name: License Compliance
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.x"
+
+      - name: Fetch base branch
+        env:
+          INPUT_BASE_REF: ${{ inputs.base_ref }}
+        run: |
+          BASE="${GITHUB_BASE_REF:-${INPUT_BASE_REF:-'main'}}"
+          git fetch origin "${BASE}"
+          echo "TORCH_TWEAK_LICENSE_CHECKER_BASE_REF=${BASE}" >> "$GITHUB_ENV"
+
+      - name: Run license checker
+        run: python .github/scripts/check_licenses.py
+
+  # Runs static code analysis
+  codeql:
+    name: CodeQL
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [actions, python]
+    steps:
+      - name: Checkout Torch Tweak repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: Perform analysis
+        uses: github/codeql-action/analyze@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          category: "/language:${{matrix.language}}"
+
+  # Detects whether files relevant to the tests were changed
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      tests: ${{ steps.filter.outputs.tests }}
+    steps:
+      - name: Checkout Torch Tweak repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Filter changed paths
+        id: filter
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          # Run everything on manual dispatch or when the diff can't be computed.
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ] || [ -z "$BASE_SHA" ] \
+            || ! files=$(git diff --name-only "$BASE_SHA" "$GITHUB_SHA"); then
+            echo "tests=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if grep -qE '^(torch_tweak/|examples/|tests/|pyproject\.toml$|conftest\.py$|uv\.lock$|\.github/workflows/(tests|checkers)\.yml$)' <<< "$files"; then
+            echo "tests=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "tests=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  # Runs tests only after checkers passed (or were skipped, e.g. on push)
+  tests:
+    name: Tests
+    needs: [pre-commit, license-check, changes]
+    if: ${{ !failure() && !cancelled() && needs.changes.outputs.tests == 'true' }}
+    uses: ./.github/workflows/tests.yml
